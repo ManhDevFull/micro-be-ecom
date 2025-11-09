@@ -11,6 +11,7 @@ COPY Contracts/ ./Contracts/
 
 # Build dotnet service
 WORKDIR /src/dotnet
+RUN ls -la && find . -maxdepth 2 && echo "=== END LS ==="
 RUN dotnet restore dotnet.csproj
 RUN dotnet publish dotnet.csproj -c Release -o /app/dotnet
 
