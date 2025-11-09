@@ -4,8 +4,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy toàn bộ project vào container (bao gồm cả Contracts)
-COPY . .
+# Copy riêng từng project (Render thường dùng context repo root)
+COPY dotnet/ ./dotnet/
+COPY chat/ ./chat/
+COPY Contracts/ ./Contracts/
 
 # Build dotnet service
 WORKDIR /src/dotnet
@@ -24,17 +26,17 @@ RUN dotnet publish chat.csproj -c Release -o /app/chat
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
-# Copy các file đã publish từ stage build
+# Copy các output đã build
 COPY --from=build /app/dotnet ./dotnet
 COPY --from=build /app/chat ./chat
 
-# Cài supervisor để chạy song song 2 tiến trình
+# Cài supervisor để chạy song song
 RUN apt-get update && apt-get install -y supervisor && apt-get clean
 
 # Copy file cấu hình supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Mở các port
+# Expose các port REST + gRPC + SignalR
 EXPOSE 5000 5100 5295 5296
 
 # Chạy 2 service song song
