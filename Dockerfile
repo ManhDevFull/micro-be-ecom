@@ -1,37 +1,42 @@
-# ---------- Build phase ----------
+# ======================
+# 1️⃣ Build stage
+# ======================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-
 WORKDIR /src
 
-# Copy tất cả project
+# Copy project files
 COPY ./dotnet ./dotnet
 COPY ./chat ./chat
-COPY ./Contracts ./Contracts
 
-# Restore cho từng project
-RUN dotnet restore ./dotnet/dotnet.csproj
-RUN dotnet restore ./chat/chat.csproj
+# Build dotnet service
+WORKDIR /src/dotnet
+RUN dotnet restore dotnet.csproj
+RUN dotnet publish dotnet.csproj -c Release -o /app/dotnet
 
-# Build release cho cả 2
-RUN dotnet publish ./dotnet/dotnet.csproj -c Release -o /app/dotnet
-RUN dotnet publish ./chat/chat.csproj -c Release -o /app/chat
+# Build chat service
+WORKDIR /src/chat
+RUN dotnet restore chat.csproj
+RUN dotnet publish chat.csproj -c Release -o /app/chat
 
 
-# ---------- Runtime phase ----------
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
-
+# ======================
+# 2️⃣ Runtime stage
+# ======================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
-# Copy 2 app đã build
+# Copy built files
 COPY --from=build /app/dotnet ./dotnet
 COPY --from=build /app/chat ./chat
 
-# Cài thêm process manager (để chạy 2 app song song)
-RUN apt-get update && apt-get install -y supervisor
+# Install supervisor (chạy nhiều tiến trình)
+RUN apt-get update && apt-get install -y supervisor && apt-get clean
 
-# Tạo file cấu hình cho supervisor
-RUN mkdir -p /etc/supervisor/conf.d
-COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy file cấu hình supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 5000 5001
-ENTRYPOINT ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Expose các cổng REST + gRPC + SignalR
+EXPOSE 5000 5100 5295 5296
+
+# Chạy cả hai project song song
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
