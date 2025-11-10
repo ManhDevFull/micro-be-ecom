@@ -112,7 +112,7 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddControllers();
-
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 

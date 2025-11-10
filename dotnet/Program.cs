@@ -154,7 +154,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddOpenApi();
-
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
