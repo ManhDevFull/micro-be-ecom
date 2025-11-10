@@ -130,5 +130,5 @@ app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
 
-
+app.MapGet("/health", () => Results.Ok("chat healthy ✅"));
 app.Run();

@@ -180,5 +180,5 @@ app.Use(async (context, next) =>
 
 app.MapControllers();
 app.MapGrpcService<AuthGrpcService>();
-
+app.MapGet("/health", () => Results.Ok("dotnet healthy ✅"));
 app.Run();
