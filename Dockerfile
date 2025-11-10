@@ -1,44 +1,44 @@
-# ======================
-# 1️⃣ Build stage
-# ======================
+# ========================
+# Stage 1: Build tất cả
+# ========================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy riêng từng project (Render thường dùng context repo root)
+# Copy toàn bộ source
 COPY dotnet/ ./dotnet/
 COPY chat/ ./chat/
+COPY gateway/ ./gateway/
 COPY Contracts/ ./Contracts/
 
-# Build dotnet service
+# Build dotnet
 WORKDIR /src/dotnet
-RUN ls -la && find . -maxdepth 2 && echo "=== END LS ==="
 RUN dotnet restore dotnet.csproj
 RUN dotnet publish dotnet.csproj -c Release -o /app/dotnet
 
-# Build chat service
+# Build chat
 WORKDIR /src/chat
 RUN dotnet restore chat.csproj
 RUN dotnet publish chat.csproj -c Release -o /app/chat
 
+# Build gateway
+WORKDIR /src/gateway
+RUN dotnet restore gateway.csproj
+RUN dotnet publish gateway.csproj -c Release -o /app/gateway
 
-# ======================
-# 2️⃣ Runtime stage
-# ======================
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# ========================
+# Stage 2: Runtime
+# ========================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
-# Copy các output đã build
+# Copy tất cả service
 COPY --from=build /app/dotnet ./dotnet
 COPY --from=build /app/chat ./chat
-
-# Cài supervisor để chạy song song
-RUN apt-get update && apt-get install -y supervisor && apt-get clean
-
-# Copy file cấu hình supervisor
+COPY --from=build /app/gateway ./gateway
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose các port REST + gRPC + SignalR
-EXPOSE 5000 5100 5295 5296
+# Cài đặt supervisor
+RUN apt-get update && apt-get install -y supervisor && apt-get clean
 
-# Chạy 2 service song song
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+EXPOSE 5200   # chỉ public gateway
+CMD ["/usr/bin/supervisord"]

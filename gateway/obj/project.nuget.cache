@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "e0+mF3+zDnw=",
+  "success": true,
+  "projectFilePath": "/run/media/manh/01DB60055A8FAD30/Ecommerce/BackEnd/gateway/gateway.csproj",
+  "expectedPackageFiles": [
+    "/home/manh/.nuget/packages/system.io.hashing/7.0.0/system.io.hashing.7.0.0.nupkg.sha512",
+    "/home/manh/.nuget/packages/yarp.reverseproxy/2.1.0/yarp.reverseproxy.2.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}
