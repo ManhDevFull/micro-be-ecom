@@ -40,5 +40,5 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Cài đặt supervisor
 RUN apt-get update && apt-get install -y supervisor && apt-get clean
 
-EXPOSE 5200   # chỉ public gateway
+EXPOSE 5200
 CMD ["/usr/bin/supervisord"]
