@@ -1,3 +1,4 @@
+using System.IO;
 using System.Security.Claims;
 using System.Text;
 using ChatRealtime;
@@ -6,6 +7,7 @@ using ChatService.Data;
 using Dotnet.Grpc;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -40,6 +42,12 @@ builder.Services.AddDbContext<ChatDbContext>(options =>
 });
 
 builder.Services.Configure<ChatSettings>(builder.Configuration.GetSection("Chat"));
+
+var dataProtectionPath = Path.Combine(AppContext.BaseDirectory, "..", "data-protection");
+Directory.CreateDirectory(dataProtectionPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
+    .SetApplicationName("ecommerce-platform");
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
@@ -129,6 +137,5 @@ app.MapGrpcService<ChatService.Grpc.ChatGrpcService>();
 app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
-
-app.MapGet("/health", () => Results.Ok("chat healthy ✅"));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "chat" }));
 app.Run();

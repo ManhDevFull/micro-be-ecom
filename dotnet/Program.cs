@@ -1,6 +1,8 @@
+using System.IO;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +60,12 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // Cloudinary
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+
+var dataProtectionPath = Path.Combine(AppContext.BaseDirectory, "..", "data-protection");
+Directory.CreateDirectory(dataProtectionPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
+    .SetApplicationName("ecommerce-platform");
 
 //JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -180,5 +188,5 @@ app.Use(async (context, next) =>
 
 app.MapControllers();
 app.MapGrpcService<AuthGrpcService>();
-app.MapGet("/health", () => Results.Ok("dotnet healthy ✅"));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "dotnet" }));
 app.Run();

@@ -127,3 +127,4 @@
 /run/media/manh/01DB60055A8FAD30/Ecommerce/BackEnd/chat/bin/Debug/net9.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /run/media/manh/01DB60055A8FAD30/Ecommerce/BackEnd/chat/bin/Debug/net9.0/Microsoft.IdentityModel.Tokens.dll
 /run/media/manh/01DB60055A8FAD30/Ecommerce/BackEnd/chat/bin/Debug/net9.0/System.IdentityModel.Tokens.Jwt.dll
+/run/media/manh/01DB60055A8FAD30/Ecommerce/BackEnd/chat/obj/Debug/net9.0/chat.sourcelink.json

@@ -17,8 +17,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddHealthChecks();
 
-var gatewayUrl = builder.Configuration.GetValue<string>("Gateway:Url")
-                 ?? "http://0.0.0.0:5200";
+var portFromEnv = builder.Configuration["PORT"];
+var gatewayUrl = !string.IsNullOrWhiteSpace(portFromEnv)
+    ? $"http://0.0.0.0:{portFromEnv}"
+    : builder.Configuration["ASPNETCORE_URLS"];
+
+gatewayUrl ??= builder.Configuration.GetValue<string>("Gateway:Url");
+gatewayUrl ??= "http://0.0.0.0:5200";
 
 builder.WebHost.UseUrls(gatewayUrl);
 
